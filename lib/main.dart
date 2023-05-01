@@ -74,14 +74,12 @@ class _GamePageState extends State<GamePage> {
                 ),
                 const SizedBox(width: 8.0),
                 CardPileWidget(
-                    pile: game.stockPile,
-                    type: CardPileType.stock,
-                    onCardAdded: (card) {},
-                    onCardTapped: (_) {
-                      setState(() {
-                        game.pullFromStock();
-                      });
-                    }),
+                  pile: game.stockPile,
+                  type: CardPileType.stock,
+                  onCardAdded: (card) {},
+                  onCardTapped: (_) => pullStockCard(),
+                  onEmptyPileTapped: pullStockCard,
+                ),
               ],
             ),
             const SizedBox(height: 16.0),
@@ -117,6 +115,12 @@ class _GamePageState extends State<GamePage> {
       ),
     );
   }
+
+  void pullStockCard() {
+    setState(() {
+      game.pullFromStock();
+    });
+  }
 }
 
 typedef CardAddedCallback = void Function(MovingCard card);
@@ -127,6 +131,7 @@ class CardPileWidget extends StatelessWidget {
   final CardPileType type;
   final CardAddedCallback? onCardAdded;
   final CardTappedCallback? onCardTapped;
+  final VoidCallback? onEmptyPileTapped;
 
   const CardPileWidget({
     Key? key,
@@ -134,6 +139,7 @@ class CardPileWidget extends StatelessWidget {
     required this.type,
     this.onCardAdded,
     this.onCardTapped,
+    this.onEmptyPileTapped,
   }) : super(key: key);
 
   @override
@@ -241,20 +247,24 @@ class CardPileWidget extends StatelessWidget {
         break;
     }
 
-    return DragTarget<MovingCard>(
-      onWillAccept: (card) {
-        return card != null;
-      },
-      onAccept: onCardAdded,
-      builder: (context, _, __) => Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          border: pile.isEmpty
-              ? Border.all(color: Theme.of(context).colorScheme.onBackground)
-              : null,
+    return GestureDetector(
+      behavior: HitTestBehavior.deferToChild,
+      onTap: onEmptyPileTapped,
+      child: DragTarget<MovingCard>(
+        onWillAccept: (card) {
+          return card != null;
+        },
+        onAccept: onCardAdded,
+        builder: (context, _, __) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            border: pile.isEmpty
+                ? Border.all(color: Theme.of(context).colorScheme.onBackground)
+                : null,
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }
