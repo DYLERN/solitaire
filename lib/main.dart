@@ -305,46 +305,48 @@ class CardWidget extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         border: Border.all(color: Theme.of(context).colorScheme.onBackground),
       ),
-      child: Builder(builder: (context) {
-        if (!card.faceUp) {
-          // TODO needs a better back
-          // TODO face up maybe needs to be controlled by a final field
-          return const Placeholder();
-        }
+      child: Builder(
+        builder: (context) {
+          if (!card.faceUp) {
+            // TODO needs a better back
+            // TODO face up maybe needs to be controlled by a final field
+            return const Placeholder();
+          }
 
-        return DefaultTextStyle(
-          style: TextStyle(color: cardTextColor, fontSize: 24.0),
-          child: Stack(
-            children: [
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Text(card.face.textOnCard),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Text(card.suit.textOnCard),
-              ),
-              Positioned.fill(
-                child: Center(
+          return DefaultTextStyle(
+            style: TextStyle(color: cardTextColor, fontSize: 24.0),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Text(card.face.textOnCard),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
                   child: Text(card.suit.textOnCard),
                 ),
-              ),
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: Text(card.suit.textOnCard),
-              ),
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Text(card.face.textOnCard),
-              ),
-            ],
-          ),
-        );
-      }),
+                Positioned.fill(
+                  child: Center(
+                    child: Text(card.suit.textOnCard),
+                  ),
+                ),
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: Text(card.suit.textOnCard),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Text(card.face.textOnCard),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
 
     return Draggable<MovingCard>(
