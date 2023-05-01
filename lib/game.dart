@@ -25,6 +25,7 @@ class Game {
     for (int i = 0; i < numTableu; i++) {
       final numCards = i + 1;
       final cards = deck.take(numCards).toList();
+      cards.last.faceUp = true;
       deck.removeRange(0, numCards);
 
       cardPiles[i + numFoundations].addCards(cards);
@@ -46,6 +47,10 @@ class Game {
 
     toPile.addCard(card);
     fromPile.removeCard(card);
+
+    if (fromPile is Tableu && fromPile.cards.isNotEmpty) {
+      fromPile.cards.last.faceUp = true;
+    }
   }
 }
 
@@ -106,10 +111,12 @@ class Tableu extends CardPile {
 class PlayingCard {
   final Suit suit;
   final Face face;
+  bool faceUp;
 
-  const PlayingCard({
+  PlayingCard({
     required this.suit,
     required this.face,
+    this.faceUp = false,
   });
 
   @override

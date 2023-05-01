@@ -220,37 +220,46 @@ class CardWidget extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         border: Border.all(color: Theme.of(context).colorScheme.onBackground),
       ),
-      child: DefaultTextStyle(
-        style: TextStyle(color: cardTextColor),
-        child: Stack(
-          children: [
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Text(card.face.textOnCard),
+      child: Builder(
+        builder: (context) {
+          if (!card.faceUp) {
+            // TODO needs a better back
+            return const Placeholder();
+          }
+
+          return DefaultTextStyle(
+            style: TextStyle(color: cardTextColor),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Text(card.face.textOnCard),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Text(card.suit.textOnCard),
+                ),
+                Positioned.fill(
+                  child: Center(
+                    child: Text(card.suit.textOnCard),
+                  ),
+                ),
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: Text(card.suit.textOnCard),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Text(card.face.textOnCard),
+                ),
+              ],
             ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Text(card.suit.textOnCard),
-            ),
-            Positioned.fill(
-              child: Center(
-                child: Text(card.suit.textOnCard),
-              ),
-            ),
-            Positioned(
-              bottom: 8,
-              left: 8,
-              child: Text(card.suit.textOnCard),
-            ),
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: Text(card.face.textOnCard),
-            ),
-          ],
-        ),
+          );
+        }
       ),
     );
 
