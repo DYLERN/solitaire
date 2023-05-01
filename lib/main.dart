@@ -50,7 +50,7 @@ class _GamePageState extends State<GamePage> {
           children: [
             Row(
               children: [
-                for (int i = 0; i < 4; i++) ...[
+                for (int i = 0; i < Game.numFoundations; i++) ...[
                   CardPile(
                     index: i,
                     cards: game.cardPiles[i].cards,
@@ -78,7 +78,9 @@ class _GamePageState extends State<GamePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    for (int i = 4; i < 11; i++) ...[
+                    for (int i = Game.numFoundations;
+                        i < Game.numTableu + Game.numFoundations;
+                        i++) ...[
                       CardPile(
                         index: i,
                         cards: game.cardPiles[i].cards,
@@ -220,47 +222,45 @@ class CardWidget extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         border: Border.all(color: Theme.of(context).colorScheme.onBackground),
       ),
-      child: Builder(
-        builder: (context) {
-          if (!card.faceUp) {
-            // TODO needs a better back
-            return const Placeholder();
-          }
-
-          return DefaultTextStyle(
-            style: TextStyle(color: cardTextColor, fontSize: 24.0),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Text(card.face.textOnCard),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Text(card.suit.textOnCard),
-                ),
-                Positioned.fill(
-                  child: Center(
-                    child: Text(card.suit.textOnCard),
-                  ),
-                ),
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Text(card.suit.textOnCard),
-                ),
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Text(card.face.textOnCard),
-                ),
-              ],
-            ),
-          );
+      child: Builder(builder: (context) {
+        if (!card.faceUp) {
+          // TODO needs a better back
+          return const Placeholder();
         }
-      ),
+
+        return DefaultTextStyle(
+          style: TextStyle(color: cardTextColor, fontSize: 24.0),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Text(card.face.textOnCard),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Text(card.suit.textOnCard),
+              ),
+              Positioned.fill(
+                child: Center(
+                  child: Text(card.suit.textOnCard),
+                ),
+              ),
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Text(card.suit.textOnCard),
+              ),
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Text(card.face.textOnCard),
+              ),
+            ],
+          ),
+        );
+      }),
     );
 
     return Draggable<MovingCard>(
