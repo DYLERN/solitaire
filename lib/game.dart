@@ -1,6 +1,4 @@
 class Game {
-  final List<PlayingCard> deck = [];
-
   final foundationPiles = List.unmodifiable([
     for (int i = 0; i < 4; i++) FoundationPile(),
   ]);
@@ -13,7 +11,7 @@ class Game {
   final stockPile = StockPile();
 
   void init() {
-    deck.clear();
+    final deck = <PlayingCard>[];
 
     for (final suit in Suit.values) {
       for (final face in Face.values) {
@@ -31,6 +29,9 @@ class Game {
 
       tableuPiles[i].addCards(cards);
     }
+
+    stockPile.addCards(deck);
+    deck.clear();
   }
 
   // TODO change to list of cards
@@ -55,7 +56,23 @@ class Game {
     final stockEmpty = stockPile.isEmpty;
     final drawEmpty = drawPile.isEmpty;
 
-    // TODO unimplemented
+    if (stockEmpty && drawEmpty) {
+      return;
+    } else if (stockEmpty) {
+      // recycle
+      final drawCards = drawPile.cards;
+      for (final card in drawCards) {
+        card.faceUp = false;
+      }
+      stockPile.addCards(drawCards);
+      drawPile.removeAll();
+    } else {
+      // draw
+      final stockTop = stockPile.topCard!;
+      stockPile.removeCard(stockTop);
+      stockTop.faceUp = true;
+      drawPile.addCard(stockTop);
+    }
   }
 }
 
@@ -78,6 +95,10 @@ abstract class CardPile {
 
   void removeCard(PlayingCard card) {
     cards.remove(card);
+  }
+
+  void removeAll() {
+    cards.clear();
   }
 
   bool willAcceptCard(PlayingCard card);

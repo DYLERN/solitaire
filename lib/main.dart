@@ -67,6 +67,20 @@ class _GamePageState extends State<GamePage> {
                   const SizedBox(width: 8.0),
                 ],
                 const Spacer(),
+                CardPileWidget(
+                  pile: game.drawPile,
+                  type: CardPileType.draw,
+                ),
+                const SizedBox(width: 8.0),
+                CardPileWidget(
+                    pile: game.stockPile,
+                    type: CardPileType.stock,
+                    onCardAdded: (card) {},
+                    onCardTapped: (_) {
+                      setState(() {
+                        game.pullFromStock();
+                      });
+                    }),
               ],
             ),
             const SizedBox(height: 16.0),
@@ -105,17 +119,20 @@ class _GamePageState extends State<GamePage> {
 }
 
 typedef CardAddedCallback = void Function(MovingCard card);
+typedef CardTappedCallback = void Function(PlayingCard card);
 
 class CardPileWidget extends StatelessWidget {
   final CardPile pile;
   final CardPileType type;
-  final CardAddedCallback onCardAdded;
+  final CardAddedCallback? onCardAdded;
+  final CardTappedCallback? onCardTapped;
 
   const CardPileWidget({
     Key? key,
     required this.pile,
     required this.type,
-    required this.onCardAdded,
+    this.onCardAdded,
+    this.onCardTapped,
   }) : super(key: key);
 
   @override
@@ -146,6 +163,7 @@ class CardPileWidget extends StatelessWidget {
                   return CardWidget(
                     pile: pile,
                     card: top,
+                    onTap: onCardTapped,
                   );
                 }
               case CardPileType.tableu:
@@ -167,12 +185,29 @@ class CardPileWidget extends StatelessWidget {
                                 child: CardWidget(
                                   pile: pile,
                                   card: card,
+                                  onTap: onCardTapped,
                                 ),
                               );
                             },
                           ),
                       ],
                     ),
+                  );
+                }
+              case CardPileType.draw:
+              // TODO: Handle this case.
+              // break;
+              case CardPileType.stock:
+                final top = pile.topCard;
+                if (top != null) {
+                  return CardWidget(
+                    pile: pile,
+                    card: top,
+                    onTap: onCardTapped,
+                  );
+                } else {
+                  return const Center(
+                    child: Text('EMPTY'),
                   );
                 }
             }
@@ -183,16 +218,18 @@ class CardPileWidget extends StatelessWidget {
   }
 }
 
-enum CardPileType { foundation, tableu }
+enum CardPileType { foundation, tableu, draw, stock }
 
 class CardWidget extends StatelessWidget {
   final CardPile pile;
   final PlayingCard card;
+  final CardTappedCallback? onTap;
 
   const CardWidget({
     super.key,
     required this.pile,
     required this.card,
+    required this.onTap,
   });
 
   @override
@@ -219,6 +256,7 @@ class CardWidget extends StatelessWidget {
       child: Builder(builder: (context) {
         if (!card.faceUp) {
           // TODO needs a better back
+          // TODO face up maybe needs to be controlled by a final field
           return const Placeholder();
         }
 
@@ -261,7 +299,10 @@ class CardWidget extends StatelessWidget {
       feedback: cardContainer,
       data: MovingCard(pile, card),
       childWhenDragging: const SizedBox.shrink(),
-      child: cardContainer,
+      child: GestureDetector(
+        onTap: () => onTap?.call(card),
+        child: cardContainer,
+      ),
     );
   }
 }
