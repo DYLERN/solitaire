@@ -1,15 +1,16 @@
 class Game {
   final List<PlayingCard> deck = [];
 
-  static const numFoundations = 4;
-  static const numTableu = 7;
+  final foundationPiles = List.unmodifiable([
+    for (int i = 0; i < 4; i++) FoundationPile(),
+  ]);
 
-  final List<CardPile> cardPiles = [
-    // Foundations
-    for (int i = 0; i < numFoundations; i++) Foundation(),
-    // Tableus
-    for (int i = 0; i < numTableu; i++) Tableu(),
-  ];
+  final tableuPiles = List.unmodifiable([
+    for (int i = 0; i < 7; i++) TableuPile(),
+  ]);
+
+  final drawPile = DrawPile();
+  final stockPile = StockPile();
 
   void init() {
     deck.clear();
@@ -22,25 +23,22 @@ class Game {
 
     deck.shuffle();
 
-    for (int i = 0; i < numTableu; i++) {
+    for (int i = 0; i < tableuPiles.length; i++) {
       final numCards = i + 1;
       final cards = deck.take(numCards).toList();
       cards.last.faceUp = true;
       deck.removeRange(0, numCards);
 
-      cardPiles[i + numFoundations].addCards(cards);
+      tableuPiles[i].addCards(cards);
     }
   }
 
   // TODO change to list of cards
   void moveCard({
     required PlayingCard card,
-    required int fromPileIndex,
-    required int toPileIndex,
+    required CardPile fromPile,
+    required CardPile toPile,
   }) {
-    final fromPile = cardPiles[fromPileIndex];
-    final toPile = cardPiles[toPileIndex];
-
     if (!toPile.willAcceptCard(card)) {
       return;
     }
@@ -48,9 +46,13 @@ class Game {
     toPile.addCard(card);
     fromPile.removeCard(card);
 
-    if (fromPile is Tableu && fromPile.cards.isNotEmpty) {
+    if (fromPile is TableuPile && fromPile.cards.isNotEmpty) {
       fromPile.cards.last.faceUp = true;
     }
+  }
+
+  void pullFromStock() {
+    // TODO unimplemented
   }
 }
 
@@ -74,7 +76,7 @@ abstract class CardPile {
   bool willAcceptCard(PlayingCard card);
 }
 
-class Foundation extends CardPile {
+class FoundationPile extends CardPile {
   @override
   bool willAcceptCard(PlayingCard card) {
     final top = topCard;
@@ -91,7 +93,7 @@ class Foundation extends CardPile {
   }
 }
 
-class Tableu extends CardPile {
+class TableuPile extends CardPile {
   @override
   bool willAcceptCard(PlayingCard card) {
     final top = topCard;
@@ -105,6 +107,20 @@ class Tableu extends CardPile {
       final valueDiff = card.face.cardValue - top.face.cardValue;
       return differentColor && valueDiff == -1;
     }
+  }
+}
+
+class DrawPile extends CardPile {
+  @override
+  bool willAcceptCard(PlayingCard card) {
+    return false;
+  }
+}
+
+class StockPile extends CardPile {
+  @override
+  bool willAcceptCard(PlayingCard card) {
+    return false;
   }
 }
 
@@ -157,8 +173,6 @@ enum Face {
   final int cardValue;
   final String textOnCard;
 
-  const Face(
-    this.cardValue,
-    this.textOnCard,
-  );
+  const Face(this.cardValue,
+      this.textOnCard,);
 }

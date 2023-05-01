@@ -50,17 +50,16 @@ class _GamePageState extends State<GamePage> {
           children: [
             Row(
               children: [
-                for (int i = 0; i < Game.numFoundations; i++) ...[
-                  CardPile(
-                    index: i,
-                    cards: game.cardPiles[i].cards,
+                for (final pile in game.foundationPiles) ...[
+                  CardPileWidget(
+                    pile: pile,
                     type: CardPileType.foundation,
                     onCardAdded: (movingCard) {
                       setState(() {
                         game.moveCard(
                           card: movingCard.card,
-                          fromPileIndex: movingCard.fromPileIndex,
-                          toPileIndex: i,
+                          fromPile: movingCard.fromPile,
+                          toPile: pile,
                         );
                       });
                     },
@@ -78,25 +77,22 @@ class _GamePageState extends State<GamePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    for (int i = Game.numFoundations;
-                        i < Game.numTableu + Game.numFoundations;
-                        i++) ...[
-                      CardPile(
-                        index: i,
-                        cards: game.cardPiles[i].cards,
+                    for (final pile in game.tableuPiles) ...[
+                      CardPileWidget(
+                        pile: pile,
                         type: CardPileType.tableu,
                         onCardAdded: (movingCard) {
                           setState(() {
                             game.moveCard(
                               card: movingCard.card,
-                              fromPileIndex: movingCard.fromPileIndex,
-                              toPileIndex: i,
+                              fromPile: movingCard.fromPile,
+                              toPile: pile,
                             );
                           });
                         },
                       ),
                       const SizedBox(width: 8.0),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -110,22 +106,22 @@ class _GamePageState extends State<GamePage> {
 
 typedef CardAddedCallback = void Function(MovingCard card);
 
-class CardPile extends StatelessWidget {
-  final int index;
-  final List<PlayingCard> cards;
+class CardPileWidget extends StatelessWidget {
+  final CardPile pile;
   final CardPileType type;
   final CardAddedCallback onCardAdded;
 
-  const CardPile({
+  const CardPileWidget({
     Key? key,
-    required this.index,
-    required this.cards,
+    required this.pile,
     required this.type,
     required this.onCardAdded,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final cards = pile.cards;
+
     return DragTarget<MovingCard>(
       onWillAccept: (card) {
         return card != null;
@@ -150,7 +146,7 @@ class CardPile extends StatelessWidget {
                 } else {
                   final top = cards.last;
                   return CardWidget(
-                    pileIndex: index,
+                    pile: pile,
                     card: top,
                   );
                 }
@@ -171,7 +167,7 @@ class CardPile extends StatelessWidget {
                               return Positioned(
                                 top: i * offset,
                                 child: CardWidget(
-                                  pileIndex: index,
+                                  pile: pile,
                                   card: card,
                                 ),
                               );
@@ -192,12 +188,12 @@ class CardPile extends StatelessWidget {
 enum CardPileType { foundation, tableu }
 
 class CardWidget extends StatelessWidget {
-  final int pileIndex;
+  final CardPile pile;
   final PlayingCard card;
 
   const CardWidget({
     super.key,
-    required this.pileIndex,
+    required this.pile,
     required this.card,
   });
 
@@ -265,7 +261,7 @@ class CardWidget extends StatelessWidget {
 
     return Draggable<MovingCard>(
       feedback: cardContainer,
-      data: MovingCard(pileIndex, card),
+      data: MovingCard(pile, card),
       childWhenDragging: const SizedBox.shrink(),
       child: cardContainer,
     );
@@ -273,8 +269,8 @@ class CardWidget extends StatelessWidget {
 }
 
 class MovingCard {
-  final int fromPileIndex;
+  final CardPile fromPile;
   final PlayingCard card;
 
-  MovingCard(this.fromPileIndex, this.card);
+  MovingCard(this.fromPile, this.card);
 }
