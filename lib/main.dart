@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solitaire/game.dart';
+import 'package:solitaire/utils.dart';
 
 const cardWidth = 100.0;
 const cardHeight = 140.0;
@@ -137,82 +138,123 @@ class CardPileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double width;
+    final double height;
+
+    final Widget child;
+    switch (type) {
+      case CardPileType.foundation:
+        width = cardWidth;
+        height = cardHeight;
+        child = Builder(
+          builder: (context) {
+            if (pile.isEmpty) {
+              return const Center(
+                child: Text('A'),
+              );
+            } else {
+              final top = pile.topCard!;
+              return CardWidget(
+                pile: pile,
+                card: top,
+                onTap: onCardTapped,
+              );
+            }
+          },
+        );
+        break;
+      case CardPileType.tableu:
+        if (pile.isEmpty) {
+          width = cardWidth;
+          height = cardHeight;
+          child = const SizedBox.shrink();
+        } else {
+          const offset = 30.0;
+
+          width = cardWidth;
+          height = cardHeight + ((pile.cards.length - 1) * offset);
+
+          child = Stack(
+            children: [
+              for (int i = 0; i < pile.cards.length; i++)
+                Builder(
+                  builder: (context) {
+                    final card = pile.cards[i];
+                    return Positioned(
+                      top: i * offset,
+                      child: CardWidget(
+                        pile: pile,
+                        card: card,
+                        onTap: onCardTapped,
+                      ),
+                    );
+                  },
+                ),
+            ],
+          );
+        }
+        break;
+      case CardPileType.draw:
+        const offset = 30.0;
+        final top3 = pile.cards.takeEnd(3).toList();
+        if (top3.isEmpty) {
+          width = cardWidth;
+        } else {
+          width = cardWidth + ((top3.length - 1) * offset);
+        }
+        height = cardHeight;
+
+        child = Stack(
+          children: [
+            for (int i = 0; i < top3.length; i++)
+              Builder(
+                builder: (context) {
+                  final card = top3[i];
+                  return Positioned(
+                    left: i * offset,
+                    child: CardWidget(
+                      pile: pile,
+                      card: card,
+                      onTap: onCardTapped,
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
+        break;
+      case CardPileType.stock:
+        width = cardWidth;
+        height = cardHeight;
+        final top = pile.topCard;
+        if (top != null) {
+          child = CardWidget(
+            pile: pile,
+            card: top,
+            onTap: onCardTapped,
+          );
+        } else {
+          child = const Center(
+            child: Text('EMPTY'),
+          );
+        }
+        break;
+    }
+
     return DragTarget<MovingCard>(
       onWillAccept: (card) {
         return card != null;
       },
       onAccept: onCardAdded,
       builder: (context, _, __) => Container(
-        width: cardWidth,
-        constraints: const BoxConstraints(minHeight: cardHeight),
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           border: pile.isEmpty
               ? Border.all(color: Theme.of(context).colorScheme.onBackground)
               : null,
         ),
-        child: Builder(
-          builder: (context) {
-            switch (type) {
-              case CardPileType.foundation:
-                if (pile.isEmpty) {
-                  return const Center(
-                    child: Text('A'),
-                  );
-                } else {
-                  final top = pile.topCard!;
-                  return CardWidget(
-                    pile: pile,
-                    card: top,
-                    onTap: onCardTapped,
-                  );
-                }
-              case CardPileType.tableu:
-                if (pile.isEmpty) {
-                  return const SizedBox.shrink();
-                } else {
-                  const offset = 30.0;
-
-                  return SizedBox(
-                    height: cardHeight + ((pile.cards.length - 1) * offset),
-                    child: Stack(
-                      children: [
-                        for (int i = 0; i < pile.cards.length; i++)
-                          Builder(
-                            builder: (context) {
-                              final card = pile.cards[i];
-                              return Positioned(
-                                top: i * offset,
-                                child: CardWidget(
-                                  pile: pile,
-                                  card: card,
-                                  onTap: onCardTapped,
-                                ),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-                  );
-                }
-              case CardPileType.draw:
-              // TODO: Handle this case.
-              // break;
-              case CardPileType.stock:
-                final top = pile.topCard;
-                if (top != null) {
-                  return CardWidget(
-                    pile: pile,
-                    card: top,
-                    onTap: onCardTapped,
-                  );
-                } else {
-                  return const Center(
-                    child: Text('EMPTY'),
-                  );
-                }
-            }
-          },
-        ),
+        child: child,
       ),
     );
   }
