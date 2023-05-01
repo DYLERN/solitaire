@@ -228,7 +228,7 @@ class CardWidget extends StatelessWidget {
           }
 
           return DefaultTextStyle(
-            style: TextStyle(color: cardTextColor),
+            style: TextStyle(color: cardTextColor, fontSize: 24.0),
             child: Stack(
               children: [
                 Positioned(
