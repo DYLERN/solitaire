@@ -120,8 +120,6 @@ class CardPileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cards = pile.cards;
-
     return DragTarget<MovingCard>(
       onWillAccept: (card) {
         return card != null;
@@ -131,7 +129,7 @@ class CardPileWidget extends StatelessWidget {
         width: cardWidth,
         constraints: const BoxConstraints(minHeight: cardHeight),
         decoration: BoxDecoration(
-          border: cards.isEmpty
+          border: pile.isEmpty
               ? Border.all(color: Theme.of(context).colorScheme.onBackground)
               : null,
         ),
@@ -139,31 +137,31 @@ class CardPileWidget extends StatelessWidget {
           builder: (context) {
             switch (type) {
               case CardPileType.foundation:
-                if (cards.isEmpty) {
+                if (pile.isEmpty) {
                   return const Center(
                     child: Text('A'),
                   );
                 } else {
-                  final top = cards.last;
+                  final top = pile.topCard!;
                   return CardWidget(
                     pile: pile,
                     card: top,
                   );
                 }
               case CardPileType.tableu:
-                if (cards.isEmpty) {
+                if (pile.isEmpty) {
                   return const SizedBox.shrink();
                 } else {
                   const offset = 30.0;
 
                   return SizedBox(
-                    height: cardHeight + ((cards.length - 1) * offset),
+                    height: cardHeight + ((pile.cards.length - 1) * offset),
                     child: Stack(
                       children: [
-                        for (int i = 0; i < cards.length; i++)
+                        for (int i = 0; i < pile.cards.length; i++)
                           Builder(
                             builder: (context) {
-                              final card = cards[i];
+                              final card = pile.cards[i];
                               return Positioned(
                                 top: i * offset,
                                 child: CardWidget(

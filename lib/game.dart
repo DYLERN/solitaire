@@ -46,12 +46,15 @@ class Game {
     toPile.addCard(card);
     fromPile.removeCard(card);
 
-    if (fromPile is TableuPile && fromPile.cards.isNotEmpty) {
+    if (fromPile is TableuPile && fromPile.isNotEmpty) {
       fromPile.cards.last.faceUp = true;
     }
   }
 
   void pullFromStock() {
+    final stockEmpty = stockPile.isEmpty;
+    final drawEmpty = drawPile.isEmpty;
+
     // TODO unimplemented
   }
 }
@@ -60,6 +63,10 @@ abstract class CardPile {
   final List<PlayingCard> cards = [];
 
   PlayingCard? get topCard => cards.isEmpty ? null : cards.last;
+
+  bool get isEmpty => cards.isEmpty;
+
+  bool get isNotEmpty => !isEmpty;
 
   void addCard(PlayingCard card) {
     cards.add(card);
