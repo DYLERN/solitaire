@@ -40,7 +40,7 @@ class Game {
     required CardPile fromPile,
     required CardPile toPile,
   }) {
-    if (!toPile.willAcceptCard(card)) {
+    if (!card.faceUp || !toPile.willAcceptCard(card)) {
       return;
     }
 
