@@ -44,8 +44,10 @@ class Game {
       return;
     }
 
-    toPile.addCard(card);
-    fromPile.removeCard(card);
+    final cardsAbove = fromPile.cards.skipWhile((value) => value != card);
+
+    toPile.addCards(cardsAbove);
+    fromPile.removeCards(cardsAbove);
 
     if (fromPile is TableuPile && fromPile.isNotEmpty) {
       fromPile.cards.last.faceUp = true;
@@ -64,7 +66,7 @@ class Game {
       for (final card in drawCards) {
         card.faceUp = false;
       }
-      stockPile.addCards(drawCards);
+      stockPile.addCards(drawCards.reversed);
       drawPile.removeAll();
     } else {
       // draw
@@ -89,12 +91,16 @@ abstract class CardPile {
     cards.add(card);
   }
 
-  void addCards(List<PlayingCard> cards) {
+  void addCards(Iterable<PlayingCard> cards) {
     this.cards.addAll(cards);
   }
 
   void removeCard(PlayingCard card) {
     cards.remove(card);
+  }
+
+  void removeCards(Iterable<PlayingCard> cards) {
+    this.cards.removeWhere((element) => cards.contains(element));
   }
 
   void removeAll() {
@@ -201,6 +207,8 @@ enum Face {
   final int cardValue;
   final String textOnCard;
 
-  const Face(this.cardValue,
-      this.textOnCard,);
+  const Face(
+    this.cardValue,
+    this.textOnCard,
+  );
 }
