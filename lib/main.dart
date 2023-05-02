@@ -352,6 +352,7 @@ class CardWidget extends StatelessWidget {
     return Draggable<MovingCard>(
       feedback: cardContainer,
       data: MovingCard(pile, card),
+      maxSimultaneousDrags: card.faceUp ? 1 : 0,
       childWhenDragging: const SizedBox.shrink(),
       child: GestureDetector(
         onTap: () => onTap?.call(card),
